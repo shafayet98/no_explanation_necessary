@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environment
+.env
+.env.*
+
+# Embedding index cache — can be hundreds of MB, always regenerable
+index/cache/
+*.npy
+*.faiss
+
+# Sentence-transformers model cache
+models/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node / React frontend
+node_modules/
+interface/frontend/dist/
+interface/frontend/build/
+.npm/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+.terraform.lock.hcl
+terraform.tfvars
+*.auto.tfvars
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
