@@ -91,16 +91,28 @@ def search(query_vector: np.ndarray, k: int = 50) -> list[SearchResult]:
 
     Requires load() to have been called first. Cosine similarity equals the dot
     product because both the index vectors and query_vector are L2-normalised.
+
+    Deduplicates by word — when multiple senses of the same word appear in the
+    shortlist, only the highest-scoring sense is returned.
     """
     if _vectors is None or _records is None:
         raise RuntimeError("Index not loaded. Call index.engine.load() first.")
 
-    # shape: (N,)
     scores = _vectors @ query_vector.astype(np.float32)
 
-    top_k = min(k, len(scores))
-    # argpartition for efficiency, then sort the shortlist
-    idx = np.argpartition(scores, -top_k)[-top_k:]
+    # Oversample to ensure k unique words survive deduplication
+    raw_k = min(k * 5, len(scores))
+    idx = np.argpartition(scores, -raw_k)[-raw_k:]
     idx = idx[np.argsort(scores[idx])[::-1]]
 
-    return [SearchResult(record=_records[i], score=float(scores[i])) for i in idx]
+    seen_words: set[str] = set()
+    results: list[SearchResult] = []
+    for i in idx:
+        word = _records[i].word
+        if word not in seen_words:
+            seen_words.add(word)
+            results.append(SearchResult(record=_records[i], score=float(scores[i])))
+            if len(results) == k:
+                break
+
+    return results
