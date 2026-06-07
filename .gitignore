@@ -44,6 +44,9 @@ terraform.tfvars
 .DS_Store
 Thumbs.db
 
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
+
 # IDE
 .vscode/
 .idea/
