@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -Rs '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:(\"Project progress log — read before making any changes:\\n\\n\" + .)}}' \"$CLAUDE_PROJECT_DIR/.claude/progress.md\" 2>/dev/null || true",
+            "statusMessage": "Loading progress.md"
+          }
+        ]
+      }
+    ]
+  }
+}
