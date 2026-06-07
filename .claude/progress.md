@@ -6,18 +6,68 @@
 
 ## Current state (at a glance)
 
-- **Phase:** Phase 1 complete. PR #2 open, not yet merged. Next up is **Phase 2**
-  (evaluation harness — 150–300 test pairs, recall@10 + MRR, baseline recorded).
+- **Phase:** Phase 2 complete (eval harness live, Phase 1 baseline recorded).
+  Next up is **Phase 3** (sense-splitting: one record per word sense, embed each
+  separately, dedupe at result stage, re-run eval).
 - **Branch model:** work off `main`, branch per change, PR into `main`.
+  - Phase 1 PR #2 open (`phase-1/thin-vertical-slice`) — not yet merged.
+  - Phase 2 branch: `phase-2/evaluation-harness` — not yet merged.
+  - Phase 2 was rebased onto Phase 1 branch (Phase 1 not in `main` yet).
 - **Runnable today:**
-  - `pytest tests/` → 13/13 pass.
+  - `pytest tests/` → **16/16 pass**.
   - `python scripts/build_index.py` → cache hit (index already built, 3,787 vectors).
   - `python scripts/query.py "the smell of rain on dry earth"` → **petrichor rank 1**.
+  - `python eval/eval.py` → **recall@10 = 0.6167, MRR = 0.4461** (Phase 1 baseline).
+- **Eval gate:** ACTIVE from Phase 3 onward. Run `python eval/eval.py` before and
+  after every quality change. Number goes down → revert.
+- **Phase 1 baseline (the floor):**
+  - recall@10: **0.6167** (111/180)
+  - MRR: **0.4461**
+  - By difficulty: easy 0.933 / medium 0.731 / hard 0.283
 - **Environment:** `venv/` with full deps (numpy, torch, sentence-transformers,
   fastapi, nltk, wordfreq, pytest). Activate with `source venv/bin/activate`.
-- **Next action:** Plan and build Phase 2 — hand-write 150–300 `(description →
-  expected word)` test pairs, implement `recall@10` + `MRR` in `eval/eval.py`,
-  one-command run, record Phase 1 baseline. **Eval gate activates from Phase 2 — do not skip.**
+
+---
+
+## Phase 2 — Evaluation harness (branch `phase-2/evaluation-harness`, not yet merged)
+
+Plan: `docs/plan/evaluation_harness.md`
+
+### What was built
+Implemented the full eval harness and recorded the Phase 1 baseline.
+
+- **eval/test_cases.jsonl** — 180 hand-written `(description → expected_word)` test
+  pairs, all words confirmed present in the corpus. Distribution: 60 easy
+  (synonym/paraphrase), 67 medium (own-words definition), 53 hard (evocative/poetic).
+  All pairs tagged with `difficulty` field.
+- **eval/eval.py** — full harness implementation: loads index, embeds all
+  descriptions in one batch, runs `search(k=10)` per case, computes recall@10 and
+  MRR, prints per-case table grouped by difficulty + aggregate summary, compares
+  against latest `baselines.json` entry. CLI: `python eval/eval.py` to run;
+  `python eval/eval.py --save-baseline --phase N` to record a new entry.
+- **eval/baselines.json** — Phase 1 baseline recorded:
+  `{"phase": 1, "recall_at_10": 0.616667, "mrr": 0.446069, "date": "2026-06-08"}`.
+- **tests/test_eval.py** — 3 new unit tests: JSONL parse + key presence check,
+  baselines validity check, metric smoke test with hand-computed fixture.
+
+### Process note
+Phase 2 branch was rebased onto `phase-1/thin-vertical-slice` (not `main`) because
+Phase 1 PR is still open. When Phase 1 merges, Phase 2 can be cleanly rebased onto
+`main`.
+
+### Verification (all conditions met)
+- `pytest tests/` → **16/16 passed** (5 skeleton + 8 phase-1 + 3 eval).
+- `python eval/eval.py` runs without error and prints recall@10 + MRR.
+- `eval/baselines.json` has exactly one entry with `"phase": 1`.
+- Eval gate is now **active** — every future quality change must show a positive or
+  neutral delta before it can be kept.
+
+### Confirmed decisions (do not re-litigate without reason)
+- **Test set size:** 180 cases (≥ 150 minimum met).
+- **Harness calls embed + search directly** (bypasses understanding layer stub).
+  Update to call `understanding.query()` when Phase 5 lands.
+- **Metrics:** recall@10 and MRR. MRR is the tiebreaker when recall is tied.
+- **Baseline format:** `{"phase": N, "recall_at_10": ..., "mrr": ..., "date": "YYYY-MM-DD"}`.
 
 ---
 

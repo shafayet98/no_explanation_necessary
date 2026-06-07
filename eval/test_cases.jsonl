@@ -1,0 +1,180 @@
+{"description": "a feeling of extreme happiness or cheerfulness", "expected_word": "joy", "difficulty": "easy"}
+{"description": "a strong feeling of displeasure or hostility toward someone or something", "expected_word": "anger", "difficulty": "easy"}
+{"description": "a strong unpleasant emotion caused by actual or perceived danger or threat", "expected_word": "fear", "difficulty": "easy"}
+{"description": "strong affection for someone", "expected_word": "love", "difficulty": "easy"}
+{"description": "an unreasonable overestimation of one's own superiority", "expected_word": "pride", "difficulty": "easy"}
+{"description": "uncomfortable feeling due to recognition of one's own impropriety", "expected_word": "shame", "difficulty": "easy"}
+{"description": "a state of mental uneasiness and nervousness about uncertain future events", "expected_word": "anxiety", "difficulty": "easy"}
+{"description": "something that causes amazement or awe; a marvel", "expected_word": "wonder", "difficulty": "easy"}
+{"description": "identification with or understanding of another person's feelings and emotional state", "expected_word": "empathy", "difficulty": "easy"}
+{"description": "the mental ability to recover quickly from depression or misfortune", "expected_word": "resilience", "difficulty": "easy"}
+{"description": "to want something to happen with a sense of expectation that it might", "expected_word": "hope", "difficulty": "easy"}
+{"description": "the quality of being confident and not easily intimidated without being incautious", "expected_word": "courage", "difficulty": "easy"}
+{"description": "the state of being alone or solitary, by oneself", "expected_word": "solitude", "difficulty": "easy"}
+{"description": "a longing for home or familiar surroundings; homesickness", "expected_word": "nostalgia", "difficulty": "easy"}
+{"description": "a release of emotional tension after an overwhelming vicarious experience", "expected_word": "catharsis", "difficulty": "easy"}
+{"description": "something which lasts for only a short period of time; not permanent", "expected_word": "ephemeral", "difficulty": "easy"}
+{"description": "a combination of events which have come together by chance to make something surprisingly good", "expected_word": "serendipity", "difficulty": "easy"}
+{"description": "one of the large bodies of water separating the continents", "expected_word": "ocean", "difficulty": "easy"}
+{"description": "a large winding stream that drains a land mass, carrying water down from higher areas", "expected_word": "river", "difficulty": "easy"}
+{"description": "a dense uncultivated tract of trees and undergrowth, larger than woods", "expected_word": "forest", "difficulty": "easy"}
+{"description": "the atmosphere visible above from the ground during the day", "expected_word": "sky", "difficulty": "easy"}
+{"description": "a self-sustaining chemical reaction involving bonding of oxygen with carbon, producing heat and light", "expected_word": "fire", "difficulty": "easy"}
+{"description": "the third planet of the Solar System; the world upon which humans live", "expected_word": "earth", "difficulty": "easy"}
+{"description": "a clear liquid substance found at room temperature, essential for life", "expected_word": "water", "difficulty": "easy"}
+{"description": "the frozen crystalline state of water that falls as precipitation from clouds", "expected_word": "snow", "difficulty": "easy"}
+{"description": "the distinctive scent that accompanies the first rain after a long warm dry spell", "expected_word": "petrichor", "difficulty": "easy"}
+{"description": "a method of human thought that involves thinking in a linear step-by-step manner about how a problem can be solved", "expected_word": "logic", "difficulty": "easy"}
+{"description": "the image-making power of the mind; the act of mentally creating objects not presently perceived by the senses", "expected_word": "imagination", "difficulty": "easy"}
+{"description": "an element of personal character that enables one to distinguish the wise from the unwise", "expected_word": "wisdom", "difficulty": "easy"}
+{"description": "disbelief or uncertainty about something; a particular instance of such uncertainty", "expected_word": "doubt", "difficulty": "easy"}
+{"description": "confidence in or reliance on some person or quality", "expected_word": "trust", "difficulty": "easy"}
+{"description": "the state of being free; not being imprisoned or enslaved; able to act without constraint", "expected_word": "freedom", "difficulty": "easy"}
+{"description": "the state or characteristic of being just or fair", "expected_word": "justice", "difficulty": "easy"}
+{"description": "the fact of being equal; the same rights and status for all", "expected_word": "equality", "difficulty": "easy"}
+{"description": "an expression of mirth particular to the human species; the sound heard in laughing", "expected_word": "laugh", "difficulty": "easy"}
+{"description": "a shedding of tears; the act of weeping", "expected_word": "cry", "difficulty": "easy"}
+{"description": "a facial expression formed by flexing the muscles of both ends of one's mouth, often showing pleasure or amusement", "expected_word": "smile", "difficulty": "easy"}
+{"description": "the absence of sound; complete stillness and quietness", "expected_word": "quiet", "difficulty": "easy"}
+{"description": "having an absolute or relative lack of light", "expected_word": "dark", "difficulty": "easy"}
+{"description": "an excited state of joy; a feeling of intense happiness", "expected_word": "euphoria", "difficulty": "easy"}
+{"description": "emotional pain about something done or experienced in the past, with a wish it had been different", "expected_word": "regret", "difficulty": "easy"}
+{"description": "something discovered; the act of finding something previously unknown", "expected_word": "discovery", "difficulty": "easy"}
+{"description": "the morning twilight period immediately before sunrise", "expected_word": "dawn", "difficulty": "easy"}
+{"description": "the condition of being held in a state between two or more opposing forces", "expected_word": "tension", "difficulty": "easy"}
+{"description": "a strong will or determination; the act of resolving to do something", "expected_word": "resolution", "difficulty": "easy"}
+{"description": "steadfast adherence to a strict moral or ethical code", "expected_word": "integrity", "difficulty": "easy"}
+{"description": "contentment, ease; something that provides a sense of security and relief", "expected_word": "comfort", "difficulty": "easy"}
+{"description": "charming and pleasing qualities; the quality of moving or doing things with elegance", "expected_word": "grace", "difficulty": "easy"}
+{"description": "the state of being dark; lack of light", "expected_word": "darkness", "difficulty": "easy"}
+{"description": "the presumed cause, force, or principle that predetermines events; destiny", "expected_word": "fate", "difficulty": "easy"}
+{"description": "motivation to do or achieve something; ability coupled with ambition", "expected_word": "drive", "difficulty": "easy"}
+{"description": "the unordered state of matter; complete disorder and confusion", "expected_word": "chaos", "difficulty": "easy"}
+{"description": "a group of people sharing a common understanding, traditions, and often a place", "expected_word": "community", "difficulty": "easy"}
+{"description": "money or property bequeathed to someone; a lasting effect left behind after one is gone", "expected_word": "legacy", "difficulty": "easy"}
+{"description": "an ache or bodily suffering; an unpleasant sensation resulting from damage or injury", "expected_word": "pain", "difficulty": "easy"}
+{"description": "a state of being pleased or contented; gratification of the senses or mind", "expected_word": "pleasure", "difficulty": "easy"}
+{"description": "a cause or explanation for why something happened or exists", "expected_word": "reason", "difficulty": "easy"}
+{"description": "by oneself, without company or others present", "expected_word": "alone", "difficulty": "easy"}
+{"description": "a brief unspecified amount of time; an instant", "expected_word": "moment", "difficulty": "easy"}
+{"description": "the event of setting someone or something free; liberation from confinement", "expected_word": "release", "difficulty": "easy"}
+{"description": "the feeling you get when you miss a place or time in your past that you can never fully return to", "expected_word": "nostalgia", "difficulty": "medium"}
+{"description": "the state of being completely by yourself with no one else around, which can feel peaceful or deeply oppressive", "expected_word": "solitude", "difficulty": "medium"}
+{"description": "the overwhelming feeling of being washed clean after finally letting go of something painful you had been holding inside", "expected_word": "catharsis", "difficulty": "medium"}
+{"description": "the bittersweet quality that beautiful things have precisely because they will not last forever", "expected_word": "ephemeral", "difficulty": "medium"}
+{"description": "the happy accident of stumbling across something wonderful that you weren't even looking for", "expected_word": "serendipity", "difficulty": "medium"}
+{"description": "a persistent low mood of sadness that settles over you without an obvious cause", "expected_word": "melancholy", "difficulty": "medium"}
+{"description": "the ability to actually feel what another person is going through, as if from the inside", "expected_word": "empathy", "difficulty": "medium"}
+{"description": "the capacity to recover your footing after being knocked down by life, over and over again", "expected_word": "resilience", "difficulty": "medium"}
+{"description": "the queasy nervousness that comes before something uncertain happens, especially something you cannot control", "expected_word": "anxiety", "difficulty": "medium"}
+{"description": "the rush you feel when something you deeply hoped for actually comes true", "expected_word": "joy", "difficulty": "medium"}
+{"description": "the heat that builds when someone crosses a line you care about deeply", "expected_word": "anger", "difficulty": "medium"}
+{"description": "the instinct to freeze, flee, or pull back when your body senses something is wrong", "expected_word": "fear", "difficulty": "medium"}
+{"description": "the deep pull you feel toward another person, unable to stop thinking about them", "expected_word": "love", "difficulty": "medium"}
+{"description": "the puffed-up satisfaction of having done something others haven't or of being seen as better", "expected_word": "pride", "difficulty": "medium"}
+{"description": "the burning face feeling after being caught doing something you wish you hadn't done", "expected_word": "shame", "difficulty": "medium"}
+{"description": "the stunned open-mouthed feeling at something impossible or magnificent you weren't prepared for", "expected_word": "wonder", "difficulty": "medium"}
+{"description": "the quality that lets you say what needs to be said even when your voice is shaking", "expected_word": "courage", "difficulty": "medium"}
+{"description": "the quiet good feeling of being somewhere safe and familiar, with nothing pressing on you", "expected_word": "comfort", "difficulty": "medium"}
+{"description": "clear-eyed thinking that follows rules and reaches conclusions step by step from evidence", "expected_word": "logic", "difficulty": "medium"}
+{"description": "the inner space where you construct worlds, people, and things that don't yet exist in reality", "expected_word": "imagination", "difficulty": "medium"}
+{"description": "the hard-won ability to see clearly which things are truly important and which merely seem to be", "expected_word": "wisdom", "difficulty": "medium"}
+{"description": "the nagging sense that what you currently believe might not be true after all", "expected_word": "doubt", "difficulty": "medium"}
+{"description": "the willingness to rely on someone without needing proof that they will come through for you", "expected_word": "trust", "difficulty": "medium"}
+{"description": "the condition of living without external constraint, able to go and be exactly as you choose", "expected_word": "freedom", "difficulty": "medium"}
+{"description": "the principle that people should receive what they have earned or deserve, and no more", "expected_word": "justice", "difficulty": "medium"}
+{"description": "the ideal that every person deserves the same treatment and opportunities under the same rules", "expected_word": "equality", "difficulty": "medium"}
+{"description": "the involuntary sound your body makes when something genuinely strikes you as funny", "expected_word": "laugh", "difficulty": "medium"}
+{"description": "what happens when sadness becomes too heavy to hold inside and the body finds its own way to release it", "expected_word": "cry", "difficulty": "medium"}
+{"description": "the upward curve of lips that signals warmth, amusement, or good feeling without needing words", "expected_word": "smile", "difficulty": "medium"}
+{"description": "the eerie stillness when every sound has stopped and nothing disturbs the air", "expected_word": "quiet", "difficulty": "medium"}
+{"description": "the overpowering feeling of delight so intense it almost feels like it cannot be contained", "expected_word": "euphoria", "difficulty": "medium"}
+{"description": "the sorrow that lingers after realising you were the cause of a mistake you cannot undo", "expected_word": "regret", "difficulty": "medium"}
+{"description": "the moment when something previously unknown suddenly becomes visible and known for the first time", "expected_word": "discovery", "difficulty": "medium"}
+{"description": "the thin spreading light across the horizon just before the sun rises", "expected_word": "dawn", "difficulty": "medium"}
+{"description": "the stretched unresolved feeling when two opposing forces have not yet given way to each other", "expected_word": "tension", "difficulty": "medium"}
+{"description": "the point where you make up your mind and commit to a course of action no matter what", "expected_word": "resolution", "difficulty": "medium"}
+{"description": "acting in line with your values even when no one is watching and there is no external reward", "expected_word": "integrity", "difficulty": "medium"}
+{"description": "the natural ease and beauty in the way something or someone moves, as if no effort were required", "expected_word": "grace", "difficulty": "medium"}
+{"description": "the thick blanket of absence of light that fills a space when every lamp is out", "expected_word": "darkness", "difficulty": "medium"}
+{"description": "the feeling that your path through life was determined long before you were born, not by your choices", "expected_word": "fate", "difficulty": "medium"}
+{"description": "the internal fire that keeps you pushing toward a goal when every other signal says to stop", "expected_word": "drive", "difficulty": "medium"}
+{"description": "the state when all structure has collapsed and nothing follows predictable rules any more", "expected_word": "chaos", "difficulty": "medium"}
+{"description": "the network of people who share your place, history, or purpose and form your sense of belonging", "expected_word": "community", "difficulty": "medium"}
+{"description": "the mark you leave on the world and on people after you are no longer there to make it yourself", "expected_word": "legacy", "difficulty": "medium"}
+{"description": "the signal your body sends when something is going wrong inside and needs urgent attention", "expected_word": "pain", "difficulty": "medium"}
+{"description": "the warm glow of getting exactly what you wanted, with nothing left to want in that moment", "expected_word": "pleasure", "difficulty": "medium"}
+{"description": "the chain of cause and explanation that connects one fact to another", "expected_word": "reason", "difficulty": "medium"}
+{"description": "the condition of having no one else nearby, completely without company", "expected_word": "alone", "difficulty": "medium"}
+{"description": "a short window of time that appears and then is gone, barely long enough to notice", "expected_word": "moment", "difficulty": "medium"}
+{"description": "the experience of being let go from something that had been holding you bound", "expected_word": "release", "difficulty": "medium"}
+{"description": "chasing windmills with noble intentions, full of idealistic dreams but no practical sense of reality", "expected_word": "quixotic", "difficulty": "medium"}
+{"description": "the threshold space that is neither fully one thing nor the other; a state of transition between two worlds", "expected_word": "liminal", "difficulty": "medium"}
+{"description": "the deep ache of missing something you once loved but can no longer have or return to", "expected_word": "nostalgia", "difficulty": "medium"}
+{"description": "the vast expanse of salt water that covers most of the planet and separates its continents", "expected_word": "ocean", "difficulty": "medium"}
+{"description": "water flowing down a path it carved itself, moving from high ground toward the sea", "expected_word": "river", "difficulty": "medium"}
+{"description": "a place of thick trees where the canopy is so dense that sunlight barely reaches the ground", "expected_word": "forest", "difficulty": "medium"}
+{"description": "the open expanse above your head that is blue in daylight, black at night, and always changing", "expected_word": "sky", "difficulty": "medium"}
+{"description": "rapid combustion that produces heat and light, dancing and consuming whatever it touches", "expected_word": "fire", "difficulty": "medium"}
+{"description": "the ground beneath your feet and the entire living world you inhabit", "expected_word": "earth", "difficulty": "medium"}
+{"description": "the clear liquid that falls as rain, fills rivers, and makes up most of every living thing", "expected_word": "water", "difficulty": "medium"}
+{"description": "silent white crystals that fall from winter clouds and change the appearance of everything they cover", "expected_word": "snow", "difficulty": "medium"}
+{"description": "good judgment earned through many years of lived experience and careful reflection", "expected_word": "wisdom", "difficulty": "medium"}
+{"description": "the lingering uncertainty that keeps you from fully committing to what you think you believe", "expected_word": "doubt", "difficulty": "medium"}
+{"description": "the willingness to be vulnerable with someone because you believe they will not use it against you", "expected_word": "trust", "difficulty": "medium"}
+{"description": "the burst of sound that escapes involuntarily when something strikes you as genuinely funny", "expected_word": "laugh", "difficulty": "medium"}
+{"description": "the way the body finds release when the emotion inside has become too heavy to hold", "expected_word": "cry", "difficulty": "medium"}
+{"description": "the small soft signal that everything is fine, offered without a word", "expected_word": "smile", "difficulty": "medium"}
+{"description": "the smell of rain on dry earth", "expected_word": "petrichor", "difficulty": "hard"}
+{"description": "the feeling of sadness you cannot quite explain, a low grey cloud that follows you through ordinary days", "expected_word": "melancholy", "difficulty": "hard"}
+{"description": "the precise almost painful beauty of something you know is about to end and cannot hold", "expected_word": "ephemeral", "difficulty": "hard"}
+{"description": "stumbling across exactly the thing you needed without ever having searched for it", "expected_word": "serendipity", "difficulty": "hard"}
+{"description": "the ancient deep sadness that lives in old music, in languages no longer spoken, in places that used to be something else", "expected_word": "nostalgia", "difficulty": "hard"}
+{"description": "the feeling of being genuinely seen and understood by another human being without having to explain yourself", "expected_word": "empathy", "difficulty": "hard"}
+{"description": "getting back up again each time regardless of how many times life has knocked you down before", "expected_word": "resilience", "difficulty": "hard"}
+{"description": "the long loose feeling of being freed from a weight you had been carrying so long you forgot it was there", "expected_word": "release", "difficulty": "hard"}
+{"description": "the ache in your gut when something important is about to be decided and you have no control over the outcome", "expected_word": "anxiety", "difficulty": "hard"}
+{"description": "the involuntary lift of the spirit when something goes better than you feared", "expected_word": "joy", "difficulty": "hard"}
+{"description": "the heat behind your eyes when someone crosses a line you didn't even know you had drawn", "expected_word": "anger", "difficulty": "hard"}
+{"description": "the animal alertness when your body knows something is wrong before your mind has caught up", "expected_word": "fear", "difficulty": "hard"}
+{"description": "the invisible gravity that pulls two people back to each other across any distance or time", "expected_word": "love", "difficulty": "hard"}
+{"description": "the swelling feeling of having been chosen, noticed, elevated above the rest of the room", "expected_word": "pride", "difficulty": "hard"}
+{"description": "the hot-cheeked exposure of being seen doing something you desperately wish you hadn't", "expected_word": "shame", "difficulty": "hard"}
+{"description": "the gasp before the words come when you cannot believe what you are looking at", "expected_word": "wonder", "difficulty": "hard"}
+{"description": "the commitment to speak the true thing even when your hands are shaking and the room is against you", "expected_word": "courage", "difficulty": "hard"}
+{"description": "the quiet good feeling of a place that holds no threat, where nothing is asked of you", "expected_word": "comfort", "difficulty": "hard"}
+{"description": "the sting of a moment you wish you could undo, playing again and again in the back of your mind", "expected_word": "regret", "difficulty": "hard"}
+{"description": "the split second when everything shifts and the world rearranges itself into something you didn't know before", "expected_word": "discovery", "difficulty": "hard"}
+{"description": "the grey-blue hour before anything has begun and the day is still just possibility", "expected_word": "dawn", "difficulty": "hard"}
+{"description": "the coiled readiness in a room when two sides are waiting for the other to move first", "expected_word": "tension", "difficulty": "hard"}
+{"description": "the moment the fog clears and you decide, finally, once and for all, which way you are going", "expected_word": "resolution", "difficulty": "hard"}
+{"description": "doing the right thing in the dark when no one is keeping score and no one will ever know", "expected_word": "integrity", "difficulty": "hard"}
+{"description": "a kind of lightness in the way things are done, as if the effort were invisible", "expected_word": "grace", "difficulty": "hard"}
+{"description": "the hour when every lamp is out and the world is held in absolute unbroken blackness", "expected_word": "darkness", "difficulty": "hard"}
+{"description": "the sense that what happened to you was never really in your hands to begin with", "expected_word": "fate", "difficulty": "hard"}
+{"description": "the fire behind the eyes that makes someone impossible to discourage or stop", "expected_word": "drive", "difficulty": "hard"}
+{"description": "the moment the usual rules stop applying and no one knows what happens next", "expected_word": "chaos", "difficulty": "hard"}
+{"description": "the warm tight feeling of belonging somewhere and to someone, of mattering to a group", "expected_word": "community", "difficulty": "hard"}
+{"description": "what you leave carved into time and into people even after you are gone", "expected_word": "legacy", "difficulty": "hard"}
+{"description": "the body's insistent way of telling you it has been through enough and something must change", "expected_word": "pain", "difficulty": "hard"}
+{"description": "the low hum of satisfaction that comes from having exactly what you wanted with nothing left to want", "expected_word": "pleasure", "difficulty": "hard"}
+{"description": "the chain of if-and-therefore that leads step by step from question to answer", "expected_word": "logic", "difficulty": "hard"}
+{"description": "the inner life that lets you walk into a room that does not yet exist anywhere but inside you", "expected_word": "imagination", "difficulty": "hard"}
+{"description": "knowing which things matter and which things only seem to, and being able to tell the difference", "expected_word": "wisdom", "difficulty": "hard"}
+{"description": "the uncomfortable suspension of not knowing which way to fall, unable to commit to either side", "expected_word": "doubt", "difficulty": "hard"}
+{"description": "laying down your defences because you believe the other person will not use the opening against you", "expected_word": "trust", "difficulty": "hard"}
+{"description": "the wide-open feeling of a road with no one to ask permission from and nowhere you have to be", "expected_word": "freedom", "difficulty": "hard"}
+{"description": "the reckoning where what you did in life finally matches what you receive in return", "expected_word": "justice", "difficulty": "hard"}
+{"description": "the same measuring stick applied to every person in the room, regardless of who they are", "expected_word": "equality", "difficulty": "hard"}
+{"description": "the noise that surprises you out of yourself when something is genuinely funny and you cannot hold it in", "expected_word": "laugh", "difficulty": "hard"}
+{"description": "the way the body releases what words cannot carry", "expected_word": "cry", "difficulty": "hard"}
+{"description": "the small silent signal that everything between two people is fine", "expected_word": "smile", "difficulty": "hard"}
+{"description": "the space where a sound was and now is nothing; what remains after a voice stops", "expected_word": "quiet", "difficulty": "hard"}
+{"description": "the kind of happiness so full it almost hurts to feel it", "expected_word": "euphoria", "difficulty": "hard"}
+{"description": "the open wound of knowing that you were the cause of something you cannot go back and fix", "expected_word": "regret", "difficulty": "hard"}
+{"description": "the first time a hidden thing shows its face and you cannot unsee it", "expected_word": "discovery", "difficulty": "hard"}
+{"description": "the world before anything has happened yet, still and expectant", "expected_word": "dawn", "difficulty": "hard"}
+{"description": "the breath that finally comes after the long awful held moment has ended", "expected_word": "release", "difficulty": "hard"}
+{"description": "the in-between time when you have left one thing but not yet arrived at the next, suspended at the threshold", "expected_word": "liminal", "difficulty": "hard"}
+{"description": "tilting at windmills with a noble heart and no sense of the odds against you", "expected_word": "quixotic", "difficulty": "hard"}
+{"description": "the smell that rises from hot dry earth the moment rain first touches it", "expected_word": "petrichor", "difficulty": "hard"}
