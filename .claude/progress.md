@@ -19,8 +19,9 @@
 
 ---
 
-## Phase 1 — Thin vertical slice (branch `phase-1/thin-vertical-slice`)
+## Phase 1 — Thin vertical slice (PR #2, branch `phase-1/thin-vertical-slice`)
 
+PR: https://github.com/shafayet98/no_explanation_necessary/pull/2
 Plan: `docs/plan/thin_vertical_slice.md`
 
 ### What was built
