@@ -184,7 +184,7 @@ def test_load_records_basic():
     for r in records[:10]:
         assert r.word and r.definition and r.embed_text
         assert r.embed_text.startswith(r.word + ":")
-        assert r.sense == 0
+        assert r.sense >= 0  # Phase 3+: real sense index, not always 0
         assert r.pos in ("n", "v", "a", "r")
 
 

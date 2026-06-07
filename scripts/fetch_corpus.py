@@ -6,8 +6,8 @@ exists unless --force is passed.
   python scripts/fetch_corpus.py
   python scripts/fetch_corpus.py --force
 
-Each line of corpus.jsonl:
-  {"word": "...", "pos": "n|v|a|r", "definition": "..."}
+Each line of corpus.jsonl (Phase 3+ format):
+  {"word": "...", "senses": [{"sense": 0, "pos": "n|v|a|r", "definition": "..."}, ...]}
 
 Source: Free Dictionary API (Wiktionary-backed, CC BY-SA).
 """
@@ -87,7 +87,7 @@ def _normalise_pos(raw: str) -> str:
 
 
 def _fetch_entry(word: str, session: requests.Session) -> dict | None:
-    """Return {"word", "pos", "definition"} or None if not found."""
+    """Return {"word", "senses": [{"sense", "pos", "definition"}, ...]} or None if not found."""
     url = f"{API_BASE}/{word}"
     for delay in [0] + RETRY_DELAYS:
         if delay:
@@ -107,13 +107,18 @@ def _fetch_entry(word: str, session: requests.Session) -> dict | None:
             data = resp.json()
         except ValueError:
             continue
+        senses = []
+        seen_defs: set[str] = set()
         for entry in data:
             for meaning in entry.get("meanings", []):
+                pos = _normalise_pos(meaning.get("partOfSpeech", ""))
                 for defn in meaning.get("definitions", []):
                     text = defn.get("definition", "").strip()
-                    if text:
-                        pos = _normalise_pos(meaning.get("partOfSpeech", ""))
-                        return {"word": word, "pos": pos, "definition": text}
+                    if text and text not in seen_defs:
+                        seen_defs.add(text)
+                        senses.append({"sense": len(senses), "pos": pos, "definition": text})
+        if senses:
+            return {"word": word, "senses": senses}
         return None
     return None
 
