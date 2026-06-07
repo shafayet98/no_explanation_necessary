@@ -6,20 +6,22 @@
 
 ## Current state (at a glance)
 
-- **Phase:** Phase 1 complete (thin vertical slice). Next up is **Phase 2**
-  (evaluation harness — 150-300 test pairs, recall@10 + MRR, baseline recorded).
+- **Phase:** Phase 1 complete. PR #2 open, not yet merged. Next up is **Phase 2**
+  (evaluation harness — 150–300 test pairs, recall@10 + MRR, baseline recorded).
 - **Branch model:** work off `main`, branch per change, PR into `main`.
-  Current branch: `phase-1/thin-vertical-slice` (not yet merged).
 - **Runnable today:**
   - `pytest tests/` → 13/13 pass.
   - `python scripts/build_index.py` → cache hit (index already built, 3,787 vectors).
-  - `python scripts/query.py "the smell of rain on dry earth"` → returns **petrichor rank 1**.
+  - `python scripts/query.py "the smell of rain on dry earth"` → **petrichor rank 1**.
 - **Environment:** `venv/` with full deps (numpy, torch, sentence-transformers,
   fastapi, nltk, wordfreq, pytest). Activate with `source venv/bin/activate`.
+- **Next action:** Plan and build Phase 2 — hand-write 150–300 `(description →
+  expected word)` test pairs, implement `recall@10` + `MRR` in `eval/eval.py`,
+  one-command run, record Phase 1 baseline. **Eval gate activates from Phase 2 — do not skip.**
 
 ---
 
-## Phase 1 — Thin vertical slice (PR #2, branch `phase-1/thin-vertical-slice`)
+## PR #2 — Thin vertical slice (open, branch `phase-1/thin-vertical-slice`)
 
 PR: https://github.com/shafayet98/no_explanation_necessary/pull/2
 Plan: `docs/plan/thin_vertical_slice.md`
@@ -45,20 +47,32 @@ Implemented the full query path from corpus → vectors → search → terminal 
   for efficiency.
 - **scripts/build_index.py** — cache-before-embed invariant enforced: if cache
   valid and model matches, prints "cache hit" and exits. Otherwise: load → embed →
-  build. Second run verified to be a cache hit.
+  build.
 - **scripts/query.py** — thin terminal interface: loads index, embeds query,
   `search(k=10)`, prints ranked results with score + definition. No business logic.
-- **tests/test_phase1.py** — 8 unit tests (3 embed, 3 index, 2 data-layer/corpus).
+- **tests/test_phase1.py** — 8 new unit tests (3 embed shape/norm/single,
+  3 index build/load/search/mismatch, 2 data-layer corpus tests). 13/13 total pass.
+
+### Tooling / process changes
+- **Plan naming discipline** — plan files in `docs/plan/` must use descriptive
+  slugs (e.g. `thin_vertical_slice.md`), never phase numbers (`phase_1_*.md`).
+  Codified in `.claude/rules/build-discipline.md` and the `/plan` command
+  (`.claude/commands/plan.md`).
+- **wordfreq~=3.1** added to `requirements.txt` (frequency-ranked word list for
+  corpus selection).
+- **`data/raw/`** added to `.gitignore` — corpus cache is generated, not source.
+- Plan recorded in `docs/plan/thin_vertical_slice.md`.
 
 ### Key decision recorded
-WordNet does not contain *petrichor* (0 synsets). Switched to the **Free Dictionary
-API** (Wiktionary-backed). Curated eval-target words are fetched first in the word
-list so they're never missed by frequency cutoffs.
+WordNet has 0 synsets for *petrichor*. Switched dictionary source to the **Free
+Dictionary API** (Wiktionary-backed, verified to contain petrichor). Full kaikki
+Wiktionary dump (~3 GB) rejected as too heavy for a thin slice. Curated eval-target
+words are placed first in the word list so they are never dropped by a frequency cutoff.
 
 ### Verification (all conditions met)
 - `pytest tests/` → **13/13 passed** (5 skeleton + 8 phase-1).
 - `python scripts/build_index.py` (second run) → "Cache hit" — cache-before-embed
-  invariant holds.
+  invariant confirmed.
 - `python scripts/query.py "the smell of rain on dry earth"` → **petrichor rank 1,
   score 0.5454**. Phase 1 "done when" condition met.
 - Eval gate: **not active** — harness doesn't exist until Phase 2.
@@ -68,7 +82,7 @@ list so they're never missed by frequency cutoffs.
 - **Corpus size:** ~3,787 words (after API filtering of 5,029 candidates).
 - **Model:** `all-MiniLM-L6-v2` (384-dim, L2-normalised).
 - **Index:** numpy brute-force cosine (dot product on normalised vecs). Swaps to
-  FAISS at Phase 7 with zero contract changes.
+  FAISS at Phase 7 with zero contract changes above the index layer.
 - **Word selection:** `wordfreq` top-5000 ∪ curated eval targets; curated words
   fetched first.
 
@@ -115,11 +129,3 @@ layer module exists with signatures matching the contracts in
 - `pytest tests/test_imports.py` → 5/5 passed.
 - Stubs confirmed to raise `NotImplementedError`.
 - No eval impact (everything is a stub; the eval gate is not active yet).
-
----
-
-## Next action
-Plan and build **Phase 2**: hand-write 150-300 (description → expected word) test
-pairs across easy/medium/hard difficulty. Implement `recall@10` and `MRR` in
-`eval/eval.py`. One-command eval run. Record the Phase 1 baseline.
-**DO NOT SKIP THIS** — the eval gate activates from Phase 2 onward.
