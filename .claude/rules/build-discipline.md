@@ -19,9 +19,18 @@ Do not build Phase 5 features while Phase 3 is incomplete. Do not add filters (P
 **5. Keep the frontend dumb.**
 No filtering logic, scoring, ranking, or routing in React. If you find yourself writing business logic in the frontend, move it to the understanding layer and expose it via the API instead.
 
+## Naming Discipline
+
+**Plan files in `docs/plan/` are named for what they do, never for a phase number.**
+Use a descriptive slug — e.g. `thin_vertical_slice.md`, `retrieve_then_rerank.md`,
+`project_skeleton_decision.md` — not `phase_1_*.md`. Phase numbers are a sequence
+that shifts and gets reordered; the plan's content may reference the phase, but the
+filename must describe the work so it stays meaningful out of sequence.
+
 ## What This Means in Practice
 
 - Before writing any code: identify which single layer the change belongs to.
+- When recording a plan: name the file for the work, not the phase number.
 - Before finishing any quality change: run eval and record the delta.
 - Before starting a new phase: verify the current phase's "Done when" condition is met.
 - Before any indexing script: confirm it checks for cached vectors first.

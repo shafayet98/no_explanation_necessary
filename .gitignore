@@ -19,6 +19,9 @@ index/cache/
 *.npy
 *.faiss
 
+# Raw corpus cache — produced by scripts/fetch_corpus.py; not source code
+data/raw/
+
 # Sentence-transformers model cache
 models/
 

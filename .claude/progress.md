@@ -6,14 +6,70 @@
 
 ## Current state (at a glance)
 
-- **Phase:** Skeleton complete. Next up is **Phase 1** (thin vertical slice).
+- **Phase:** Phase 1 complete (thin vertical slice). Next up is **Phase 2**
+  (evaluation harness — 150-300 test pairs, recall@10 + MRR, baseline recorded).
 - **Branch model:** work off `main`, branch per change, PR into `main`.
-- **Runnable today:** only `pytest tests/test_imports.py` (5/5 pass). Every layer
-  function is a stub that raises `NotImplementedError` — there is no working
-  query path yet.
-- **Environment:** `venv/` exists with the full dependency install
-  (numpy, torch, sentence-transformers, fastapi, nltk, pytest). Activate with
-  `source venv/bin/activate`.
+  Current branch: `phase-1/thin-vertical-slice` (not yet merged).
+- **Runnable today:**
+  - `pytest tests/` → 13/13 pass.
+  - `python scripts/build_index.py` → cache hit (index already built, 3,787 vectors).
+  - `python scripts/query.py "the smell of rain on dry earth"` → returns **petrichor rank 1**.
+- **Environment:** `venv/` with full deps (numpy, torch, sentence-transformers,
+  fastapi, nltk, wordfreq, pytest). Activate with `source venv/bin/activate`.
+
+---
+
+## Phase 1 — Thin vertical slice (branch `phase-1/thin-vertical-slice`)
+
+Plan: `docs/plan/thin_vertical_slice.md`
+
+### What was built
+Implemented the full query path from corpus → vectors → search → terminal output.
+
+- **scripts/fetch_corpus.py** — one-time corpus builder: `wordfreq` top-5000
+  common words **∪** curated eval targets (petrichor, saudade, etc.), definitions
+  from the Free Dictionary API (Wiktionary-backed), concurrent fetch (20 workers),
+  resumable. Writes `data/raw/corpus.jsonl` (gitignored). **3,787 words** after
+  API filtering.
+- **data/loader.py** — `load_records()` implemented: reads `corpus.jsonl` offline,
+  emits one `WordRecord` per word (Phase 1: `sense=0`, primary POS + definition,
+  `embed_text = "word: definition"`).
+- **embedding/embedder.py** — `embed()` implemented: lazy singleton loading
+  `all-MiniLM-L6-v2` via `sentence-transformers`; returns L2-normalised
+  `(N, 384) float32` ndarray.
+- **index/engine.py** — `build()/load()/search()` implemented: writes/reads
+  `index/cache/{vectors.npy, records.pkl, meta.json}`; `load()` validates
+  `MODEL_ID` match (mismatch → `RuntimeError`, never silent re-embed); `search()`
+  uses dot product (= cosine sim because vectors are normalised), `argpartition`
+  for efficiency.
+- **scripts/build_index.py** — cache-before-embed invariant enforced: if cache
+  valid and model matches, prints "cache hit" and exits. Otherwise: load → embed →
+  build. Second run verified to be a cache hit.
+- **scripts/query.py** — thin terminal interface: loads index, embeds query,
+  `search(k=10)`, prints ranked results with score + definition. No business logic.
+- **tests/test_phase1.py** — 8 unit tests (3 embed, 3 index, 2 data-layer/corpus).
+
+### Key decision recorded
+WordNet does not contain *petrichor* (0 synsets). Switched to the **Free Dictionary
+API** (Wiktionary-backed). Curated eval-target words are fetched first in the word
+list so they're never missed by frequency cutoffs.
+
+### Verification (all conditions met)
+- `pytest tests/` → **13/13 passed** (5 skeleton + 8 phase-1).
+- `python scripts/build_index.py` (second run) → "Cache hit" — cache-before-embed
+  invariant holds.
+- `python scripts/query.py "the smell of rain on dry earth"` → **petrichor rank 1,
+  score 0.5454**. Phase 1 "done when" condition met.
+- Eval gate: **not active** — harness doesn't exist until Phase 2.
+
+### Confirmed decisions (do not re-litigate without reason)
+- **Dictionary source:** Free Dictionary API (Wiktionary-backed), not WordNet.
+- **Corpus size:** ~3,787 words (after API filtering of 5,029 candidates).
+- **Model:** `all-MiniLM-L6-v2` (384-dim, L2-normalised).
+- **Index:** numpy brute-force cosine (dot product on normalised vecs). Swaps to
+  FAISS at Phase 7 with zero contract changes.
+- **Word selection:** `wordfreq` top-5000 ∪ curated eval targets; curated words
+  fetched first.
 
 ---
 
@@ -62,7 +118,7 @@ layer module exists with signatures matching the contracts in
 ---
 
 ## Next action
-Plan and build **Phase 1**: implement `load_records()` (~3-5k WordNet words, one
-vector/word), the real `embed()`, the numpy `search()`, `build_index.py`, and a
-terminal query entry point. **Done when** "the smell of rain on dry earth"
-returns *petrichor* in the top 10.
+Plan and build **Phase 2**: hand-write 150-300 (description → expected word) test
+pairs across easy/medium/hard difficulty. Implement `recall@10` and `MRR` in
+`eval/eval.py`. One-command eval run. Record the Phase 1 baseline.
+**DO NOT SKIP THIS** — the eval gate activates from Phase 2 onward.

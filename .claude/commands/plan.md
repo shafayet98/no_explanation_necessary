@@ -40,5 +40,9 @@ Small (< 1 hour) / Medium (half day) / Large (multiple sessions). If Large, sugg
 
 ---
 
+When recording the plan in `docs/plan/`, name the file for what it does using a
+descriptive slug (e.g. `thin_vertical_slice.md`) — never include a phase number in
+the filename (no `phase_1_*.md`). See `.claude/rules/build-discipline.md` → Naming Discipline.
+
 After producing the plan, ask: "Does this plan look right? Any changes before I start?"
 Do not proceed with implementation until the user explicitly approves.
