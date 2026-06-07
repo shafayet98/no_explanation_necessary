@@ -1,3 +1,7 @@
+---
+description: Rebuild the embedding index from scratch (re-embeds all records).
+---
+
 Rebuild the embedding index from scratch.
 
 Steps:

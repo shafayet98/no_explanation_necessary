@@ -1,3 +1,8 @@
+---
+description: Produce an implementation plan for a task (plan only, no code).
+argument-hint: [task to plan]
+---
+
 You are about to plan a task for the Reverse Dictionary project. Do NOT write any code or make any file changes — produce a plan only and wait for approval.
 
 The task to plan: $ARGUMENTS

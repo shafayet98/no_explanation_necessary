@@ -1,3 +1,7 @@
+---
+description: Run the permanent canary test case and interpret it against the current phase.
+---
+
 Run the permanent canary test case through the current system and interpret the result relative to the current phase.
 
 The canary input is:

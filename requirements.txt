@@ -1,0 +1,19 @@
+# Reverse Dictionary — Python dependencies
+#
+# Pinned loosely (compatible-release) for the skeleton. Tighten when a phase
+# actually exercises a package.
+
+# --- Core: embedding + numerics (Phase 1+) ---
+numpy~=2.1
+sentence-transformers~=3.3        # all-MiniLM-L6-v2 wrapper
+nltk~=3.9                         # WordNet corpus loader (data layer)
+
+# --- Interface (Phase 8, stubbed now) ---
+fastapi~=0.115
+uvicorn[standard]~=0.32
+
+# --- Index (Phase 7 swaps numpy -> FAISS; listed early so the seam is known) ---
+# faiss-cpu~=1.9                  # enable at Phase 7
+
+# --- Dev / tooling ---
+pytest~=8.3
