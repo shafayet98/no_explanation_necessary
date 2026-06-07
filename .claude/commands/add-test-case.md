@@ -1,3 +1,8 @@
+---
+description: Add a new test case to the evaluation set.
+argument-hint: [description] [expected-word]
+---
+
 Add a new test case to the evaluation set.
 
 Steps:

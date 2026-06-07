@@ -1,3 +1,7 @@
+---
+description: Report the current build phase and what remains to complete it.
+---
+
 Report the current build phase and what remains to complete it.
 
 Steps:

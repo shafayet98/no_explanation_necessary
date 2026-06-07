@@ -1,3 +1,7 @@
+---
+description: Run the evaluation harness and compare results against the baseline.
+---
+
 Run the evaluation harness and compare results against the recorded baseline.
 
 Steps:
