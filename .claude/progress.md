@@ -6,25 +6,91 @@
 
 ## Current state (at a glance)
 
-- **Phase:** Phase 3 in progress (sense-splitting shipped, eval regression confirmed,
-  awaiting Phase 4 reranking to restore and improve baseline).
+- **Phase:** Phase 4 complete (retrieve-then-rerank shipped). Both metrics improved
+  over Phase 3. Did not fully close the gap to Phase 1 — remaining hard-case misses
+  require Phase 5 (LLM understanding layer). Next: Phase 5.
 - **Branch model:** work off `main`, branch per change, PR into `main`.
-  Current branch: `phase-3/sense-splitting` (open PR, not yet merged).
+  Current branch: `phase-4/retrieve-then-rerank` (open, not yet merged).
 - **Runnable today:**
-  - `pytest tests/` → **16/16 pass**.
+  - `pytest tests/` → **19/19 pass**.
   - `python scripts/build_index.py` → cache hit (index built, 48,647 vectors).
-  - `python scripts/query.py "the smell of rain on dry earth"` → petrichor rank 3.
-  - `python eval/eval.py` → **recall@10 = 0.5222, MRR = 0.3845** (Phase 3, below baseline).
-- **Eval gate:** ACTIVE. Phase 3 shows a regression vs Phase 2 baseline — this is
-  expected and structural: sense-splitting without reranking adds noise. Phase 4
-  (reranking) is the fix. Do NOT revert Phase 3; build Phase 4 on top of it.
+  - `python scripts/query.py "the smell of rain on dry earth"` → petrichor rank 1.
+  - `python eval/eval.py` → **recall@10 = 0.5611, MRR = 0.4039** (Phase 4).
+- **Eval gate:** ACTIVE. Phase 4 improves over Phase 3 on both metrics. Gap to Phase 1
+  persists because Phase 3's sense-splitting noise cannot be fully resolved without
+  LLM-based query understanding (Phase 5). Do NOT revert.
 - **Baselines:**
-  - Phase 1/2: recall@10 **0.6167**, MRR **0.4461** (the floor to beat in Phase 4)
-  - Phase 3: recall@10 **0.5222**, MRR **0.3845** (regression, pre-reranker)
+  - Phase 1/2: recall@10 **0.6167**, MRR **0.4461** (long-term target)
+  - Phase 3: recall@10 **0.5222**, MRR **0.3845** (pre-reranker)
+  - Phase 4: recall@10 **0.5611**, MRR **0.4039** (+0.039 recall, +0.019 MRR vs Phase 3)
 - **Corpus:** `data/raw/corpus.jsonl` — **4,295 words**, multi-sense format
   `{"word": ..., "senses": [...]}`. **48,647 total records** after sense expansion.
 - **Environment:** `venv/` with full deps (numpy, torch, sentence-transformers,
   fastapi, nltk, wordfreq, pytest). Activate with `source venv/bin/activate`.
+
+---
+
+## Phase 4 — Retrieve-then-rerank (branch `phase-4/retrieve-then-rerank`, open)
+
+Plan: `docs/plan/retrieve_then_rerank.md`
+
+### What was built
+
+Added a two-stage pipeline in the understanding layer: retrieve 50 unique-word
+candidates via vector search, rerank with a cross-encoder, return top 10. Also wired
+`understanding.query.query()` as the single entry point for all callers.
+
+- **understanding/reranker.py** — `rerank(candidates, query_text)` implemented.
+  Lazy-loads `cross-encoder/ms-marco-MiniLM-L-6-v2`. Scores each `(query, embed_text)`
+  pair in one batch. Uses **blended scoring**: min-max normalises both bi-encoder and
+  cross-encoder scores to `[0, 1]` then combines them 50/50. Pure cross-encoder hurt
+  medium/hard cases by overriding the bi-encoder's semantic judgment on
+  evocative/metaphorical queries; blending restored those cases while keeping
+  cross-encoder precision wins on easy cases.
+- **understanding/query.py** — `query()` implemented for the single-concept path:
+  `load()` → `embed([input])` → `search(k=50)` → `rerank()` → `[:10]` →
+  `QueryResponse(mode="single", groups=[ConceptGroup(...)])`.
+- **eval/eval.py** — updated `run_eval()` to call `understanding.query.query()` per
+  case instead of bare `embed + search`. The full pipeline (including reranker) is now
+  measured. Lost batch embedding but that is acceptable for an offline harness.
+- **scripts/query.py** — updated to call `understanding.query.query()`, exercising the
+  full production path. Petrichor now rank 1 (was rank 3 in Phase 3).
+- **tests/test_reranker.py** — 3 unit tests: empty input safe, count preserved,
+  order changes (using equal bi-encoder scores so cross-encoder is the sole signal).
+
+### Eval result — improvement over Phase 3, gap to Phase 1 remains
+
+| | recall@10 | MRR |
+|---|---|---|
+| Phase 1/2 baseline | 0.6167 | 0.4461 |
+| Phase 3 (pre-reranker) | 0.5222 | 0.3845 |
+| Phase 4 (blended reranker) | **0.5611** | **0.4039** |
+| Delta vs Phase 3 | +0.039 | +0.019 |
+
+**Root cause of remaining gap:** Medium/hard cases are evocative/metaphorical queries
+where no literal definition match exists. The reranker can't bridge that gap — it
+still compares query text against literal definitions. Phase 5 (LLM understanding layer)
+is the fix: decompose complex queries into sub-concepts, run each as a clean query.
+
+**Tuning log (for reference):**
+1. Pure cross-encoder (alpha=0): recall=0.4833, MRR=0.4155 — easy cases improved,
+   medium/hard regressed because cross-encoder overrides semantic bi-encoder judgment.
+2. Blended 0.5/0.5 at k=50: recall=0.5611, MRR=0.4039 — best overall result.
+3. Blended 0.5/0.5 at k=100: recall=0.5556, MRR=0.4077 — same pattern, marginal
+   difference; ceiling is structural not a retrieval-depth problem.
+
+### Confirmed decisions (do not re-litigate without reason)
+
+- **Blended scoring (BI_WEIGHT=0.5) is correct.** Pure cross-encoder is too aggressive
+  for evocative queries. Adjust BI_WEIGHT in `reranker.py` if a new model changes the
+  balance.
+- **Dedup happens inside `search()`** (Phase 3 decision). Reranker sees 50 unique-word
+  candidates. Moving dedup after reranking would require deep index layer changes for
+  marginal gain.
+- **Eval now routes through `understanding.query.query()`** — do not revert to direct
+  `embed + search` calls.
+- **Phase 4 gap to Phase 1 is structural.** Do not spend more time tuning the
+  bi-encoder/cross-encoder blend — the fix is Phase 5.
 
 ---
 

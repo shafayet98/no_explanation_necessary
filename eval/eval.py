@@ -1,11 +1,13 @@
-"""Evaluation harness (Phase 2).
+"""Evaluation harness (Phase 2+).
 
-Loads eval/test_cases.jsonl, runs each description through embed + search,
-and reports recall@10 and MRR versus the latest entry in eval/baselines.json.
+Loads eval/test_cases.jsonl, runs each description through the understanding
+layer query() — which includes vector retrieval and cross-encoder reranking
+from Phase 4 onward — and reports recall@10 and MRR versus the latest entry
+in eval/baselines.json.
 
 Usage:
     python eval/eval.py
-    python eval/eval.py --save-baseline --phase 1
+    python eval/eval.py --save-baseline --phase 4
 """
 
 import argparse
@@ -17,8 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from embedding.embedder import embed
-from index.engine import load, search
+from understanding.query import query as understanding_query
 
 TEST_CASES_PATH = ROOT / "eval" / "test_cases.jsonl"
 BASELINES_PATH = ROOT / "eval" / "baselines.json"
@@ -40,23 +41,23 @@ def load_baselines() -> list[dict]:
 
 
 def run_eval(cases: list[dict], k: int = 10) -> tuple[float, float, list[dict]]:
-    """Return (recall_at_k, mrr, per_case_results)."""
-    load()
-    descriptions = [c["description"] for c in cases]
-    vectors = embed(descriptions)
+    """Return (recall_at_k, mrr, per_case_results).
 
+    Routes each description through understanding.query.query() so the full
+    pipeline — vector retrieval + cross-encoder reranking — is measured.
+    """
     results = []
     reciprocal_ranks = []
     hits = 0
 
-    for i, case in enumerate(cases):
+    for case in cases:
         expected = case["expected_word"].lower()
-        query_vec = vectors[i]
-        top_k = search(query_vec, k=k)
+        response = understanding_query(case["description"])
+        top_k = response.groups[0].results[:k]
 
         rank = None
-        for j, sr in enumerate(top_k, 1):
-            if sr.record.word.lower() == expected:
+        for j, rr in enumerate(top_k, 1):
+            if rr.word.lower() == expected:
                 rank = j
                 break
 
