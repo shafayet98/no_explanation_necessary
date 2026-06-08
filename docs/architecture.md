@@ -98,11 +98,17 @@ def build(vectors: np.ndarray, records: list[WordRecord]) -> None:
 
 def load() -> None:
     # Loads persisted index into memory. Validates MODEL_ID matches.
+    # Idempotent — safe to call multiple times; skips reload if already loaded.
     ...
 
 def search(query_vector: np.ndarray, k: int = 50) -> list[SearchResult]:
     # Returns up to k results sorted by score descending.
     # Phase 7: swap numpy array for FAISS IndexFlatIP. Same signature.
+    ...
+
+def record_count() -> int:
+    # Returns the number of records currently loaded. Returns 0 before load().
+    # Added Phase 8 for the /health endpoint — avoids reaching into private internals.
     ...
 ```
 

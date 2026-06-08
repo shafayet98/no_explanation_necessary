@@ -56,11 +56,15 @@ def build(vectors: np.ndarray, records: list[WordRecord]) -> None:
 def load() -> None:
     """Load the persisted index into memory.
 
+    Idempotent — safe to call multiple times; skips reload if already loaded.
     Validates that the stored model_id matches embedding.MODEL_ID and that the
     stored dim matches EMBEDDING_DIM. Mismatch raises RuntimeError — never
     silently re-embeds.
     """
     global _index, _records
+
+    if _index is not None:
+        return
 
     from embedding.embedder import MODEL_ID, EMBEDDING_DIM
 
@@ -86,6 +90,14 @@ def load() -> None:
     _index = faiss.read_index(str(_FAISS_PATH))
     with _RECORDS_PATH.open("rb") as fh:
         _records = pickle.load(fh)
+
+
+def record_count() -> int:
+    """Return the number of records currently loaded in the index.
+
+    Returns 0 if load() has not been called yet.
+    """
+    return len(_records) if _records is not None else 0
 
 
 def search(query_vector: np.ndarray, k: int = 50) -> list[SearchResult]:

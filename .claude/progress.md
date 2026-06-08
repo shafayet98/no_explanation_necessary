@@ -6,18 +6,20 @@
 
 ## Current state (at a glance)
 
-- **Phase:** Phase 7 complete (FAISS index swap). Eval gate passes — recall flat,
-  MRR slightly improved. Next: Phase 8 (FastAPI interface + React frontend + AWS deploy).
+- **Phase:** Phase 8 complete (local FastAPI + React/Tailwind interface). Next: Phase 9
+  (AWS cloud deploy via Terraform — confirm architecture before starting).
 - **Branch model:** work off `main`, branch per change, PR into `main`.
-  Current branch: `phase-7/faiss-index` (open, not yet merged).
+  Current branch: `phase-8/local-interface` (in progress, not yet merged).
 - **Runnable today:**
-  - `pytest tests/` → **80/80 pass**.
+  - `pytest tests/` → **88/88 pass** (80 existing + 8 new API integration tests).
   - `python scripts/build_index.py` → cache hit (FAISS index, 48,647 vectors).
   - `python scripts/query.py "the smell of rain on dry earth"` → petrichor rank 1.
-  - `python eval/eval.py` → **recall@10 = 0.5907, MRR = 0.4279** (Phase 7, 193 cases).
-- **Eval gate:** ACTIVE. Phase 7 passes — recall flat vs Phase 6, MRR +0.004.
-- **Index:** now FAISS `IndexFlatIP` (`index/cache/index.faiss`). Exact inner-product
-  search, same recall as numpy brute-force. `vectors.npy` removed from cache.
+  - `python eval/eval.py` → **recall@10 = 0.5907, MRR = 0.4279** (unchanged — Phase 8 is interface only).
+  - Backend: `source venv/bin/activate && uvicorn interface.api:app --reload` → http://localhost:8000
+  - Frontend: `cd interface/frontend && npm run dev` → http://localhost:5173
+- **Eval gate:** ACTIVE. Phase 8 has no quality-path changes — eval numbers unchanged.
+- **Index:** FAISS `IndexFlatIP` (`index/cache/index.faiss`). `load()` is now idempotent
+  (guard added Phase 8 — multi-concept queries no longer reload index per sub-query).
 - **Baselines:**
   - Phase 1/2: recall@10 **0.6167**, MRR **0.4461**
   - Phase 3: recall@10 **0.5222**, MRR **0.3845** (pre-reranker)
@@ -25,13 +27,99 @@
   - Phase 5: recall@10 **0.5855**, MRR **0.4227** (+0.024 recall, +0.019 MRR vs Phase 4)
   - Phase 6: recall@10 **0.5907**, MRR **0.4236** (+0.005 recall, +0.001 MRR vs Phase 5)
   - Phase 7: recall@10 **0.5907**, MRR **0.4279** (flat recall, +0.004 MRR vs Phase 6)
+  - Phase 8: no eval delta (interface-only phase)
 - **Corpus:** `data/raw/corpus.jsonl` — **4,295 words**, multi-sense format
   `{"word": ..., "senses": [...]}`. **48,647 total records** after sense expansion.
 - **Test set:** `eval/test_cases.jsonl` — **193 cases** (180 original + 13 Phase 5
   long-passage cases). 5 multi-concept cases tagged `"multi": true`.
 - **Environment:** `venv/` with full deps (numpy, torch, sentence-transformers,
-  faiss-cpu, fastapi, nltk, wordfreq, pytest, anthropic, python-dotenv). Activate with
-  `source venv/bin/activate`.
+  faiss-cpu, fastapi, uvicorn, httpx, nltk, wordfreq, pytest, anthropic, python-dotenv).
+  Activate with `source venv/bin/activate`. Node: `cd interface/frontend && npm install`.
+
+---
+
+## Phase 8 — Local interface (branch `phase-8/local-interface`, in progress)
+
+Plan: `docs/plan/local_interface.md`
+
+### What was built
+
+Implemented the FastAPI backend and React/Tailwind frontend end-to-end. The full
+query flow now works in a browser — type a description, press Enter, get ranked
+results with definitions, grouped results for multi-concept queries, interpretation
+badges, copy buttons, and filter controls.
+
+- **index/engine.py** — two improvements:
+  - `load()` is now idempotent: added early-return guard `if _index is not None: return`.
+    Without this, `_run_single_concept()` in the understanding layer was reloading the
+    full 48K FAISS index from disk on every sub-query call in a multi-concept request.
+  - `record_count() -> int` added as a new public function (returns 0 before `load()`).
+    Used by `/api/health` to report corpus size without touching private internals.
+- **docs/architecture.md** + **.claude/rules/layer-contracts.md** — updated to document
+  `record_count()` and the `load()` idempotency guarantee.
+- **interface/api.py** — full implementation:
+  - FastAPI lifespan handler calls `index.engine.load()` on startup (one load, warm for all requests).
+  - CORS middleware allows `http://localhost:5173` (Vite dev server).
+  - `POST /api/query`: Pydantic `QueryRequest` + `FiltersRequest` models; builds
+    `QueryFilters`, calls `understanding.query.query(text, filters, lucky)`, returns
+    `dataclasses.asdict(response)`. 422 automatic on malformed input.
+  - `GET /api/health`: returns `{ status, index_size, model, phase: 8 }`.
+- **interface/frontend/** — new Vite + React + Tailwind project:
+  - `vite.config.js`: proxy `/api` → `http://localhost:8000` (single prefix entry).
+  - `src/App.jsx`: textarea input (autofocus, Enter to submit), loading spinner,
+    filter panel always visible, results display, error state.
+  - `src/components/ResultCard.jsx`: word (bold), POS badge (readable label),
+    definition, copy-to-clipboard button with "copied!" confirmation.
+  - `src/components/ConceptGroupSection.jsx`: group label header with "interpretation"
+    badge when `is_interpretation=true`; list of `ResultCard`s; empty state.
+  - `src/components/FilterPanel.jsx`: POS dropdown (All/Noun/Verb/Adj/Adv),
+    starts-with text input, max-length number input, "Feeling lucky" toggle,
+    "Clear" button. Frontend passes `lucky` in the request body — backend handles
+    truncation, never the frontend.
+- **tests/test_api.py** (new, 8 tests) — FastAPI `TestClient` integration tests:
+  `/health` fields, petrichor rank-1, response shape, 422 on empty body, lucky
+  mode ≤1 result/group, POS filter, empty result structure. All marked
+  `@pytest.mark.integration`.
+- **pytest.ini** (new) — registers the `integration` mark to suppress warning.
+- **requirements.txt** — `httpx~=0.28` added (TestClient dependency).
+- **.claude/settings.json** — broadened to `Bash(*)` / `Read(*)` / `Write(*)` / `Edit(*)`.
+
+### Test result
+
+| | count |
+|---|---|
+| Phase 7 | 80/80 pass |
+| Phase 8 | **88/88 pass** (+8 new API integration tests) |
+
+No eval run — Phase 8 is interface-only, zero quality-path changes.
+
+### How to run locally
+
+```bash
+# Terminal 1 — backend
+source venv/bin/activate
+uvicorn interface.api:app --reload
+# → http://localhost:8000/api/health
+
+# Terminal 2 — frontend
+cd interface/frontend
+npm run dev
+# → http://localhost:5173
+```
+
+### Confirmed decisions (do not re-litigate without reason)
+
+- **`/api` prefix on all backend routes.** Vite proxies `/api` as a single entry —
+  no per-route proxy config needed for future endpoints.
+- **`load()` idempotency guard in index layer.** Safe for all callers; the guard is
+  transparent. Do not remove without checking all callers of `load()`.
+- **`dataclasses.asdict()` for serialisation.** All nested types in `QueryResponse`
+  are plain dataclasses with primitive fields — no custom serialiser needed.
+- **Frontend never truncates results.** Lucky mode is entirely handled by
+  `understanding.query.query(lucky=True)`. The frontend passes the flag and renders
+  whatever it gets back.
+- **Filters always visible.** No collapse toggle — the filter row is always shown
+  below the input box.
 
 ---
 

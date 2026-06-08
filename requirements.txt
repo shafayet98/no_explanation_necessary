@@ -22,3 +22,4 @@ anthropic~=0.107
 # --- Dev / tooling ---
 pytest~=8.3
 python-dotenv~=1.0          # auto-load .env in eval + scripts entry points
+httpx~=0.28                 # FastAPI TestClient dependency (Phase 8)
