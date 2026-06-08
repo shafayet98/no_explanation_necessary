@@ -34,7 +34,8 @@ Phase 4 — Retrieve-then-rerank. Retrieve top ~50 with vector search, rerank wi
 Phase 5 — Understanding layer. Classify input. Single concept -> straight to retrieve+rerank. Multi-concept passage -> LLM extracts 2-3 concepts, run each as a clean query, return grouped results. Always frame mood-interpretations honestly — never return one word with false confidence for a passage that has no single answer. Add long-passage test cases to the eval set.
 Phase 6 — Filters. Filter by part of speech, starting letter, word length. "Feeling lucky" single-guess mode. Multi-word phrase handling.
 Phase 7 — Scale the index. Swap numpy for FAISS behind the same search() interface, ideally with zero changes above the index layer. Verify eval recall holds and latency drops.
-Phase 8 — Interface + cloud deploy. Build the React/Tailwind frontend and the API endpoint. Deploy to AWS via Terraform. Frontend is a thin client.
+Phase 8 — Local interface. Build the FastAPI endpoint (POST /query, GET /health) and the React/Tailwind frontend. Run everything locally. Done when the full query flow works end-to-end in a browser: type a description, get grouped results, copy a word.
+Phase 9 — AWS cloud deploy. Deploy the backend API and frontend to AWS via Terraform. All infra defined as code, no click-ops. Confirm the AWS architecture design before writing any Terraform. Frontend is served from a CDN/static host; API runs on managed compute; FAISS index loaded from object storage.
 Build Discipline (follow this over speed)
 
 Every layer behind a narrow interface. If a change forces edits in three places, the seam is wrong — stop and fix the seam.

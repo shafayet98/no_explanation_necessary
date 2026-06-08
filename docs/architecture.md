@@ -224,7 +224,7 @@ reverse_dictionary/
 │
 ├── interface/              ← Interface layer
 │   ├── api.py              # FastAPI app — thin, no logic
-│   └── frontend/           # React + Tailwind (Phase 8)
+│   └── frontend/           # React + Tailwind (Phase 8 local, Phase 9 deployed)
 │
 ├── eval/                   ← Evaluation harness (orthogonal to the 5 layers)
 │   ├── eval.py             # python eval.py → recall@10 + MRR vs baseline
@@ -234,7 +234,7 @@ reverse_dictionary/
 ├── scripts/
 │   └── build_index.py      # one-shot: load → embed → build → save
 │
-└── infra/                  ← Terraform (AWS, Phase 8)
+└── infra/                  ← Terraform (AWS, Phase 9)
     ├── modules/
     └── envs/
         ├── dev/
@@ -245,17 +245,18 @@ reverse_dictionary/
 
 ## Phase Evolution by Layer
 
-| Phase | Data | Embedding | Index | Understanding | Interface |
-|-------|------|-----------|-------|---------------|-----------|
-| 0 | stubs | stubs | stubs | stubs | stubs |
-| 1 | 3–5k words, 1 vec/word | all-MiniLM-L6-v2, cached | numpy cosine | pass-through | terminal print |
-| 2 | unchanged | unchanged | unchanged | unchanged | `eval.py` added |
-| 3 | 1 record/sense, dedupe | embed each sense separately | unchanged | unchanged | unchanged |
-| 4 | unchanged | unchanged | retrieve top-50 + reranker | reranker integrated | unchanged |
-| 5 | unchanged | unchanged | unchanged | classifier + LLM decomposition | unchanged |
-| 6 | unchanged | unchanged | unchanged | filters + lucky mode + phrase normalization wired | deferred to Phase 8 |
-| 7 | unchanged | unchanged | numpy → FAISS (same interface) | unchanged | unchanged |
-| 8 | unchanged | unchanged | unchanged | unchanged | FastAPI /query + /health endpoints + filter params wired + React/Tailwind deploy |
+| Phase | Data | Embedding | Index | Understanding | Interface | Infra |
+|-------|------|-----------|-------|---------------|-----------|-------|
+| 0 | stubs | stubs | stubs | stubs | stubs | stubs |
+| 1 | 3–5k words, 1 vec/word | all-MiniLM-L6-v2, cached | numpy cosine | pass-through | terminal print | — |
+| 2 | unchanged | unchanged | unchanged | unchanged | `eval.py` added | — |
+| 3 | 1 record/sense, dedupe | embed each sense separately | unchanged | unchanged | unchanged | — |
+| 4 | unchanged | unchanged | retrieve top-50 + reranker | reranker integrated | unchanged | — |
+| 5 | unchanged | unchanged | unchanged | classifier + LLM decomposition | unchanged | — |
+| 6 | unchanged | unchanged | unchanged | filters + lucky mode + phrase normalization wired | deferred to Phase 8 | — |
+| 7 | unchanged | unchanged | numpy → FAISS (same interface) | unchanged | unchanged | — |
+| 8 | unchanged | unchanged | unchanged | unchanged | FastAPI /query + /health + React/Tailwind (local) | — |
+| 9 | unchanged | unchanged | unchanged | unchanged | unchanged | AWS deploy via Terraform (compute, object storage, CDN) |
 
 ---
 
