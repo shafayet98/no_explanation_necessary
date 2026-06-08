@@ -40,8 +40,9 @@ class SearchResult:
     score: float
 
 def build(vectors: np.ndarray, records: list[WordRecord]) -> None: ...
-def load() -> None: ...
+def load() -> None: ...          # idempotent — safe to call multiple times
 def search(query_vector: np.ndarray, k: int = 50) -> list[SearchResult]: ...
+def record_count() -> int: ...   # returns 0 if load() not yet called (Phase 8+)
 ```
 
 Swapping numpy for FAISS (Phase 7) means rewriting the internals of `build()`, `load()`, and `search()`. The signatures stay identical. Zero changes above this layer.
