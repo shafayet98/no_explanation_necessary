@@ -39,6 +39,7 @@ Anything that needs a decision before implementation starts, or that could cause
 Small (< 1 hour) / Medium (half day) / Large (multiple sessions). If Large, suggest breaking into sub-tasks.
 
 ---
+After making the plan always write the plan to `docs/plan`.   
 
 When recording the plan in `docs/plan/`, name the file for what it does using a
 descriptive slug (e.g. `thin_vertical_slice.md`) — never include a phase number in
