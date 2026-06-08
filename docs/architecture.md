@@ -134,8 +134,14 @@ class QueryResponse:
     mode: Literal["single", "grouped", "mood"]
     groups: list[ConceptGroup]  # length 1 for single-concept queries
 
-def query(user_input: str, filters: QueryFilters | None = None) -> QueryResponse:
+def query(
+    user_input: str,
+    filters: QueryFilters | None = None,
+    lucky: bool = False,
+) -> QueryResponse:
     # The one entry point into the understanding layer.
+    # filters: restrict results by pos / starts_with / max_length (Phase 6+).
+    # lucky: True → truncate each group to the single top result (Phase 6+).
     ...
 ```
 
@@ -247,9 +253,9 @@ reverse_dictionary/
 | 3 | 1 record/sense, dedupe | embed each sense separately | unchanged | unchanged | unchanged |
 | 4 | unchanged | unchanged | retrieve top-50 + reranker | reranker integrated | unchanged |
 | 5 | unchanged | unchanged | unchanged | classifier + LLM decomposition | unchanged |
-| 6 | filter metadata on record | unchanged | filter by POS/letter/len | filter params wired | filter UI params |
+| 6 | unchanged | unchanged | unchanged | filters + lucky mode + phrase normalization wired | deferred to Phase 8 |
 | 7 | unchanged | unchanged | numpy → FAISS (same interface) | unchanged | unchanged |
-| 8 | unchanged | unchanged | unchanged | unchanged | FastAPI + React deploy |
+| 8 | unchanged | unchanged | unchanged | unchanged | FastAPI /query + /health endpoints + filter params wired + React/Tailwind deploy |
 
 ---
 

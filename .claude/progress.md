@@ -6,29 +6,93 @@
 
 ## Current state (at a glance)
 
-- **Phase:** Phase 5 complete (LLM understanding layer shipped). Both metrics improved
-  over Phase 4, now exceeding Phase 1/2 baseline on MRR. Next: Phase 6 (filters).
+- **Phase:** Phase 6 complete (filters, lucky mode, phrase normalization). Both metrics
+  improved over Phase 5. Next: Phase 7 (FAISS index swap).
 - **Branch model:** work off `main`, branch per change, PR into `main`.
-  Current branch: `phase-5/understanding-layer` (open, not yet merged).
+  Current branch: `phase-6/filters` (open, not yet merged).
 - **Runnable today:**
-  - `pytest tests/` → **42/42 pass**.
+  - `pytest tests/` → **80/80 pass**.
   - `python scripts/build_index.py` → cache hit (index built, 48,647 vectors).
   - `python scripts/query.py "the smell of rain on dry earth"` → petrichor rank 1.
-  - `python eval/eval.py` → **recall@10 = 0.5855, MRR = 0.4227** (Phase 5, 193 cases).
-- **Eval gate:** ACTIVE. Phase 5 improves over Phase 4 on both metrics.
-  Multi-concept routing requires `ANTHROPIC_API_KEY` in environment (set in `.env`).
-  Without the key, `query()` falls back to single-concept mode gracefully.
+  - `python eval/eval.py` → **recall@10 = 0.5907, MRR = 0.4236** (Phase 6, 193 cases).
+- **Eval gate:** ACTIVE. Phase 6 improves over Phase 5 on both metrics.
+  `eval/eval.py` now auto-loads `.env` (dotenv fix) — API key no longer needs to be
+  in the shell environment before running eval.
 - **Baselines:**
   - Phase 1/2: recall@10 **0.6167**, MRR **0.4461**
   - Phase 3: recall@10 **0.5222**, MRR **0.3845** (pre-reranker)
   - Phase 4: recall@10 **0.5611**, MRR **0.4039** (+0.039 recall, +0.019 MRR vs Phase 3)
   - Phase 5: recall@10 **0.5855**, MRR **0.4227** (+0.024 recall, +0.019 MRR vs Phase 4)
+  - Phase 6: recall@10 **0.5907**, MRR **0.4236** (+0.005 recall, +0.001 MRR vs Phase 5)
 - **Corpus:** `data/raw/corpus.jsonl` — **4,295 words**, multi-sense format
   `{"word": ..., "senses": [...]}`. **48,647 total records** after sense expansion.
 - **Test set:** `eval/test_cases.jsonl` — **193 cases** (180 original + 13 Phase 5
   long-passage cases). 5 multi-concept cases tagged `"multi": true`.
 - **Environment:** `venv/` with full deps (numpy, torch, sentence-transformers,
-  fastapi, nltk, wordfreq, pytest, anthropic). Activate with `source venv/bin/activate`.
+  fastapi, nltk, wordfreq, pytest, anthropic, python-dotenv). Activate with
+  `source venv/bin/activate`.
+
+---
+
+## Phase 6 — Filters, lucky mode, phrase normalization (branch `phase-6/filters`, open)
+
+Plan: `docs/plan/filters_lucky_phrases.md`
+
+### What was built
+
+Added filter application, lucky mode, and input normalization to the understanding
+layer. All logic lives in `understanding/query.py` — zero changes to any other layer.
+Also fixed `eval/eval.py` and `scripts/query.py` to auto-load `.env` so the API key
+is always available to the multi-concept decomposer during eval.
+
+- **understanding/query.py** — three additions:
+  - `_normalize_input(text)`: strips outer whitespace/punctuation, collapses internal
+    whitespace. Applied at the top of `query()` before classification. Handles phrase
+    inputs like `"  silver lining. "` → `"silver lining"`.
+  - `_passes_filter(record, filters)`: checks pos / starts_with (case-insensitive) /
+    max_length against a WordRecord. Returns False on first mismatch.
+  - `_run_single_concept()` updated: accepts `filters` param; oversamples to k=100
+    when any filter is active (up from k=50) to compensate for attrition; applies
+    `_passes_filter` to the full reranked list before taking `[:10]`.
+  - `query()` updated: accepts `filters: QueryFilters | None` and `lucky: bool = False`.
+    Threads filters into both single-concept and multi-concept paths. When `lucky=True`,
+    truncates each group's results to `[:1]` after assembly.
+- **eval/eval.py** — added `load_dotenv(ROOT / ".env")` so `ANTHROPIC_API_KEY` is
+  loaded automatically. Previously required the key to be set in the shell environment;
+  running without it caused silent fallback to single-concept on multi-concept cases,
+  producing misleading eval numbers.
+- **scripts/query.py** — same dotenv fix as eval.py.
+- **requirements.txt** — `python-dotenv~=1.0` added.
+- **tests/test_filters.py** (new) — 38 unit tests across: normalization (10),
+  filter predicate (11), `_run_single_concept` with filters (8), `query()` with
+  filters (4), lucky mode (5). All mocked — passes without live index or API key.
+- **docs/architecture.md** — `query()` signature updated to document `lucky` param;
+  Phase 6 row corrected to reflect actual layer changes.
+
+### Eval result — improvement over Phase 5
+
+| | recall@10 | MRR |
+|---|---|---|
+| Phase 5 (understanding layer) | 0.5855 | 0.4227 |
+| Phase 6 (filters + lucky + normalization) | **0.5907** | **0.4236** |
+| Delta vs Phase 5 | +0.005 | +0.001 |
+
+The small gain comes from the dotenv fix: multi-concept cases now correctly use the
+LLM decomposer during eval (previously fell back to single-concept without the key).
+Filter/lucky logic is inert during eval (not invoked by the harness).
+
+### Confirmed decisions (do not re-litigate without reason)
+
+- **Filters live entirely in the understanding layer.** `_passes_filter` in
+  `understanding/query.py`. No filter logic in the interface or data layers.
+- **Oversampling to k=100 when any filter is active.** Simple heuristic; if a filter
+  is extremely restrictive the result set may still be < 10 — that is acceptable.
+- **Zero-result response is valid.** If all candidates are filtered out, an empty
+  `results` list is returned. No silent relaxation of constraints.
+- **`lucky` truncates after assembly**, not during retrieval. The full retrieve+rerank
+  pipeline runs; only the final slice changes.
+- **Interface layer deferred to Phase 8.** `/query` endpoint still raises
+  `NotImplementedError`. Filters and lucky mode are available via `query()` directly.
 
 ---
 
