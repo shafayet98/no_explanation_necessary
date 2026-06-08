@@ -14,7 +14,7 @@ fastapi~=0.115
 uvicorn[standard]~=0.32
 
 # --- Index (Phase 7 swaps numpy -> FAISS; listed early so the seam is known) ---
-# faiss-cpu~=1.9                  # enable at Phase 7
+faiss-cpu~=1.9                    # Phase 7: FAISS IndexFlatIP replaces numpy brute-force
 
 # --- LLM (Phase 5: understanding layer decomposer) ---
 anthropic~=0.107
