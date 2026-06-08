@@ -53,12 +53,18 @@ def run_eval(cases: list[dict], k: int = 10) -> tuple[float, float, list[dict]]:
     for case in cases:
         expected = case["expected_word"].lower()
         response = understanding_query(case["description"])
-        top_k = response.groups[0].results[:k]
 
+        # Check across all groups — for grouped responses the target word may be
+        # in any group's top-k, not necessarily in groups[0].
         rank = None
-        for j, rr in enumerate(top_k, 1):
-            if rr.word.lower() == expected:
-                rank = j
+        hit_score = None
+        for group in response.groups:
+            for j, rr in enumerate(group.results[:k], 1):
+                if rr.word.lower() == expected:
+                    rank = j
+                    hit_score = rr.score
+                    break
+            if rank is not None:
                 break
 
         hit = rank is not None
@@ -72,9 +78,10 @@ def run_eval(cases: list[dict], k: int = 10) -> tuple[float, float, list[dict]]:
             "description": case["description"],
             "expected": expected,
             "difficulty": case.get("difficulty", ""),
+            "multi": case.get("multi", False),
             "rank": rank,
             "hit": hit,
-            "score": top_k[rank - 1].score if hit else None,
+            "score": hit_score,
         })
 
     recall = hits / len(cases)
@@ -104,13 +111,14 @@ def print_report(recall: float, mrr: float, results: list[dict], baselines: list
         ghits = sum(1 for r in group if r["hit"])
         grr = sum((1.0 / r["rank"]) if r["hit"] else 0.0 for r in group) / len(group)
         print(f"\n--- {diff.upper()} ({len(group)} cases) ---")
-        print(f"{'Description':{col_w}}  {'Expected':18s}  {'Rank':>6}  {'Score':>7}")
+        print(f"{'Description':{col_w}}  {'Expected':18s}  {'M':>1}  {'Rank':>6}  {'Score':>7}")
         print("-" * 90)
         for r in group:
             desc = r["description"][:col_w]
             rank_str = str(r["rank"]) if r["hit"] else "MISS"
             score_str = f"{r['score']:.4f}" if r["score"] is not None else "  —   "
-            print(f"{desc:{col_w}}  {r['expected']:18s}  {rank_str:>6}  {score_str:>7}")
+            multi_flag = "M" if r.get("multi") else " "
+            print(f"{desc:{col_w}}  {r['expected']:18s}  {multi_flag:>1}  {rank_str:>6}  {score_str:>7}")
         print(f"  recall@{10}: {ghits}/{len(group)} = {ghits/len(group):.3f}   MRR: {grr:.3f}")
 
     # Aggregate

@@ -16,5 +16,8 @@ uvicorn[standard]~=0.32
 # --- Index (Phase 7 swaps numpy -> FAISS; listed early so the seam is known) ---
 # faiss-cpu~=1.9                  # enable at Phase 7
 
+# --- LLM (Phase 5: understanding layer decomposer) ---
+anthropic~=0.107
+
 # --- Dev / tooling ---
 pytest~=8.3
