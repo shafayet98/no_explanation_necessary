@@ -44,16 +44,15 @@ def test_embed_single_text():
 # Index layer — synthetic matrix (no real corpus required)
 # ---------------------------------------------------------------------------
 
-def _make_synthetic_index(tmp_path: Path):
-    """Build a tiny index in a temp dir and return (vectors, records)."""
-    import pickle, json
+def _make_synthetic_index(tmp_path: Path, monkeypatch):
+    """Build a tiny FAISS index in a temp dir via eng.build(); return (cache_dir, vecs, records)."""
+    import index.engine as eng
     from data.models import WordRecord
     from embedding.embedder import MODEL_ID, EMBEDDING_DIM
 
     rng = np.random.default_rng(42)
     n = 10
     vecs = rng.standard_normal((n, EMBEDDING_DIM)).astype(np.float32)
-    # L2-normalise each row
     vecs /= np.linalg.norm(vecs, axis=1, keepdims=True)
 
     records = [
@@ -63,14 +62,14 @@ def _make_synthetic_index(tmp_path: Path):
     ]
 
     cache_dir = tmp_path / "cache"
-    cache_dir.mkdir()
-    np.save(cache_dir / "vectors.npy", vecs)
-    with (cache_dir / "records.pkl").open("wb") as fh:
-        pickle.dump(records, fh)
-    with (cache_dir / "meta.json").open("w") as fh:
-        json.dump({"model_id": MODEL_ID, "embedding_dim": EMBEDDING_DIM,
-                   "count": n}, fh)
+    monkeypatch.setattr(eng, "_CACHE_DIR", cache_dir)
+    monkeypatch.setattr(eng, "_FAISS_PATH", cache_dir / "index.faiss")
+    monkeypatch.setattr(eng, "_RECORDS_PATH", cache_dir / "records.pkl")
+    monkeypatch.setattr(eng, "_META_PATH", cache_dir / "meta.json")
+    monkeypatch.setattr(eng, "_index", None)
+    monkeypatch.setattr(eng, "_records", None)
 
+    eng.build(vecs, records)
     return cache_dir, vecs, records
 
 
@@ -93,19 +92,19 @@ def test_index_build_and_load(tmp_path, monkeypatch):
 
     cache_dir = tmp_path / "cache"
     monkeypatch.setattr(eng, "_CACHE_DIR", cache_dir)
-    monkeypatch.setattr(eng, "_VECTORS_PATH", cache_dir / "vectors.npy")
+    monkeypatch.setattr(eng, "_FAISS_PATH", cache_dir / "index.faiss")
     monkeypatch.setattr(eng, "_RECORDS_PATH", cache_dir / "records.pkl")
     monkeypatch.setattr(eng, "_META_PATH", cache_dir / "meta.json")
-    monkeypatch.setattr(eng, "_vectors", None)
+    monkeypatch.setattr(eng, "_index", None)
     monkeypatch.setattr(eng, "_records", None)
 
     eng.build(vecs, records)
-    assert (cache_dir / "vectors.npy").exists()
+    assert (cache_dir / "index.faiss").exists()
     assert (cache_dir / "records.pkl").exists()
     assert (cache_dir / "meta.json").exists()
 
     eng.load()
-    assert eng._vectors is not None
+    assert eng._index is not None
     assert eng._records is not None
     assert len(eng._records) == n
 
@@ -115,14 +114,7 @@ def test_index_search_returns_sorted(tmp_path, monkeypatch):
     import index.engine as eng
     from embedding.embedder import EMBEDDING_DIM
 
-    cache_dir, vecs, records = _make_synthetic_index(tmp_path)
-    monkeypatch.setattr(eng, "_CACHE_DIR", cache_dir)
-    monkeypatch.setattr(eng, "_VECTORS_PATH", cache_dir / "vectors.npy")
-    monkeypatch.setattr(eng, "_RECORDS_PATH", cache_dir / "records.pkl")
-    monkeypatch.setattr(eng, "_META_PATH", cache_dir / "meta.json")
-    monkeypatch.setattr(eng, "_vectors", None)
-    monkeypatch.setattr(eng, "_records", None)
-
+    cache_dir, vecs, records = _make_synthetic_index(tmp_path, monkeypatch)
     eng.load()
 
     query_vec = vecs[0].copy()  # search for the first vector — should rank #1
@@ -137,25 +129,18 @@ def test_index_search_returns_sorted(tmp_path, monkeypatch):
 
 def test_index_model_mismatch_raises(tmp_path, monkeypatch):
     """load() must raise RuntimeError if the stored model_id doesn't match."""
-    import json, pickle
+    import json
     import index.engine as eng
     from embedding.embedder import EMBEDDING_DIM
 
-    cache_dir = tmp_path / "cache"
-    cache_dir.mkdir()
-    vecs = np.ones((2, EMBEDDING_DIM), dtype=np.float32)
-    np.save(cache_dir / "vectors.npy", vecs)
-    with (cache_dir / "records.pkl").open("wb") as fh:
-        pickle.dump([], fh)
+    # Build a valid FAISS index first, then overwrite meta.json with a wrong model_id
+    cache_dir, _, _ = _make_synthetic_index(tmp_path, monkeypatch)
+
     with (cache_dir / "meta.json").open("w") as fh:
         json.dump({"model_id": "WRONG-MODEL", "embedding_dim": EMBEDDING_DIM,
-                   "count": 2}, fh)
+                   "count": 10}, fh)
 
-    monkeypatch.setattr(eng, "_CACHE_DIR", cache_dir)
-    monkeypatch.setattr(eng, "_VECTORS_PATH", cache_dir / "vectors.npy")
-    monkeypatch.setattr(eng, "_RECORDS_PATH", cache_dir / "records.pkl")
-    monkeypatch.setattr(eng, "_META_PATH", cache_dir / "meta.json")
-    monkeypatch.setattr(eng, "_vectors", None)
+    monkeypatch.setattr(eng, "_index", None)
     monkeypatch.setattr(eng, "_records", None)
 
     with pytest.raises(RuntimeError, match="model"):

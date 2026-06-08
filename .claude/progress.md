@@ -6,31 +6,88 @@
 
 ## Current state (at a glance)
 
-- **Phase:** Phase 6 complete (filters, lucky mode, phrase normalization). Both metrics
-  improved over Phase 5. Next: Phase 7 (FAISS index swap).
+- **Phase:** Phase 7 complete (FAISS index swap). Eval gate passes — recall flat,
+  MRR slightly improved. Next: Phase 8 (FastAPI interface + React frontend + AWS deploy).
 - **Branch model:** work off `main`, branch per change, PR into `main`.
-  Current branch: `phase-6/filters` (open, not yet merged).
+  Current branch: `phase-7/faiss-index` (open, not yet merged).
 - **Runnable today:**
   - `pytest tests/` → **80/80 pass**.
-  - `python scripts/build_index.py` → cache hit (index built, 48,647 vectors).
+  - `python scripts/build_index.py` → cache hit (FAISS index, 48,647 vectors).
   - `python scripts/query.py "the smell of rain on dry earth"` → petrichor rank 1.
-  - `python eval/eval.py` → **recall@10 = 0.5907, MRR = 0.4236** (Phase 6, 193 cases).
-- **Eval gate:** ACTIVE. Phase 6 improves over Phase 5 on both metrics.
-  `eval/eval.py` now auto-loads `.env` (dotenv fix) — API key no longer needs to be
-  in the shell environment before running eval.
+  - `python eval/eval.py` → **recall@10 = 0.5907, MRR = 0.4279** (Phase 7, 193 cases).
+- **Eval gate:** ACTIVE. Phase 7 passes — recall flat vs Phase 6, MRR +0.004.
+- **Index:** now FAISS `IndexFlatIP` (`index/cache/index.faiss`). Exact inner-product
+  search, same recall as numpy brute-force. `vectors.npy` removed from cache.
 - **Baselines:**
   - Phase 1/2: recall@10 **0.6167**, MRR **0.4461**
   - Phase 3: recall@10 **0.5222**, MRR **0.3845** (pre-reranker)
   - Phase 4: recall@10 **0.5611**, MRR **0.4039** (+0.039 recall, +0.019 MRR vs Phase 3)
   - Phase 5: recall@10 **0.5855**, MRR **0.4227** (+0.024 recall, +0.019 MRR vs Phase 4)
   - Phase 6: recall@10 **0.5907**, MRR **0.4236** (+0.005 recall, +0.001 MRR vs Phase 5)
+  - Phase 7: recall@10 **0.5907**, MRR **0.4279** (flat recall, +0.004 MRR vs Phase 6)
 - **Corpus:** `data/raw/corpus.jsonl` — **4,295 words**, multi-sense format
   `{"word": ..., "senses": [...]}`. **48,647 total records** after sense expansion.
 - **Test set:** `eval/test_cases.jsonl` — **193 cases** (180 original + 13 Phase 5
   long-passage cases). 5 multi-concept cases tagged `"multi": true`.
 - **Environment:** `venv/` with full deps (numpy, torch, sentence-transformers,
-  fastapi, nltk, wordfreq, pytest, anthropic, python-dotenv). Activate with
+  faiss-cpu, fastapi, nltk, wordfreq, pytest, anthropic, python-dotenv). Activate with
   `source venv/bin/activate`.
+
+---
+
+## Phase 7 — FAISS index swap (branch `phase-7/faiss-index`, open)
+
+Plan: `docs/plan/faiss_index_swap.md`
+
+### What was built
+
+Replaced the numpy brute-force search inside `index/engine.py` with FAISS
+`IndexFlatIP`. The public interface (`build/load/search` signatures, `SearchResult`
+dataclass) is **unchanged** — zero edits above the index layer.
+
+- **index/engine.py** — internal rewrite only:
+  - Module state: `_vectors: np.ndarray` → `_index: faiss.Index`.
+  - New path constant `_FAISS_PATH = _CACHE_DIR / "index.faiss"`.
+  - `build()`: creates `IndexFlatIP(EMBEDDING_DIM)`, calls `index.add(vectors)`,
+    writes via `faiss.write_index()`. `records.pkl` + `meta.json` writes unchanged.
+  - `load()`: reads via `faiss.read_index()`. Model-ID / dim validation unchanged.
+  - `search()`: calls `_index.search(q, raw_k)` → `(distances, indices)`;
+    FAISS -1 sentinel handled; dedup-by-word loop unchanged.
+- **scripts/build_index.py** — cache-hit check updated from `vectors.npy` →
+  `index.faiss`.
+- **requirements.txt** — `faiss-cpu~=1.9` uncommented (installed: 1.14.2, arm64
+  macOS wheel, numpy 2.x compatible).
+- **tests/test_phase1.py** — four index tests updated:
+  - `_make_synthetic_index` helper rewritten to call `eng.build()` (was writing
+    `vectors.npy` by hand).
+  - All monkeypatching updated from `_VECTORS_PATH`/`_vectors` →
+    `_FAISS_PATH`/`_index`.
+  - `test_index_model_mismatch_raises` now builds a valid FAISS index then
+    overwrites `meta.json` with a wrong model_id — cleaner than manually writing
+    a wrong file.
+
+### Eval result — flat recall, MRR improved
+
+| | recall@10 | MRR |
+|---|---|---|
+| Phase 6 (filters + lucky + normalization) | 0.5907 | 0.4236 |
+| Phase 7 (FAISS IndexFlatIP) | **0.5907** | **0.4279** |
+| Delta vs Phase 6 | 0.000 | +0.004 |
+
+`IndexFlatIP` is exact inner-product search. Since vectors are L2-normalised,
+IP == cosine sim — results are mathematically identical to the old numpy dot product.
+The tiny MRR uptick is run-to-run LLM variability on multi-concept cases, not a
+structural change.
+
+### Confirmed decisions (do not re-litigate without reason)
+
+- **`IndexFlatIP` (exact), not `IndexIVFFlat` (approximate).** At 48k vectors
+  exact search is fast enough and guarantees zero recall regression. Upgrade to
+  approximate only if corpus scales to 500k+ and latency becomes a real problem.
+- **Cache file is `index/cache/index.faiss`** (was `vectors.npy`). Rebuild required
+  after upgrading from Phase 6 — `--force` clears and recreates.
+- **Zero contract changes above the index layer.** Understanding layer, eval, and
+  scripts call the same `load()`/`search()` signatures as before.
 
 ---
 

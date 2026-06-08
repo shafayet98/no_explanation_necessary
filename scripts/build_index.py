@@ -21,12 +21,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 _CACHE_DIR = Path(__file__).parent.parent / "index" / "cache"
 _META_PATH = _CACHE_DIR / "meta.json"
-_VECTORS_PATH = _CACHE_DIR / "vectors.npy"
+_FAISS_PATH = _CACHE_DIR / "index.faiss"
 
 
 def _cache_is_valid(model_id: str) -> bool:
     """Return True if a valid index cache exists for the given model_id."""
-    if not _VECTORS_PATH.exists() or not _META_PATH.exists():
+    if not _FAISS_PATH.exists() or not _META_PATH.exists():
         return False
     try:
         with _META_PATH.open() as fh:
