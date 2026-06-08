@@ -36,7 +36,33 @@ class QueryResponse:
 def query(user_input: str, filters: QueryFilters | None = None) -> QueryResponse:
     """The one entry point into the understanding layer.
 
-    Classifies the input, routes single concepts straight to retrieve+rerank and
-    multi-concept passages through decomposition, and returns grouped results.
+    Phase 4: single-concept path — retrieve top 50 via vector search,
+    rerank with a cross-encoder, return top 10.
+    Multi-concept routing and classifier arrive in Phase 5.
     """
-    raise NotImplementedError("understanding layer not implemented yet (skeleton)")
+    import index.engine as engine
+    from embedding.embedder import embed
+    from understanding.reranker import rerank
+
+    engine.load()
+
+    query_vec = embed([user_input])[0]
+    candidates = engine.search(query_vec, k=50)
+    reranked = rerank(candidates, user_input)
+    top10 = reranked[:10]
+
+    results = [
+        RankedResult(
+            word=sr.record.word,
+            pos=sr.record.pos,
+            definition=sr.record.definition,
+            score=sr.score,
+            is_interpretation=False,
+        )
+        for sr in top10
+    ]
+
+    return QueryResponse(
+        mode="single",
+        groups=[ConceptGroup(label=user_input, results=results)],
+    )

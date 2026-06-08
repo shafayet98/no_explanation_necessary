@@ -1,4 +1,4 @@
-"""Terminal query runner — Phase 1 thin interface.
+"""Terminal query runner — routes through the full understanding layer pipeline.
 
 Usage (single query):
     python scripts/query.py "the smell of rain on dry earth"
@@ -6,57 +6,54 @@ Usage (single query):
 Usage (interactive REPL loop):
     python scripts/query.py
 
-Loads the index once, then embeds the query and prints the top 10 results.
-No business logic here — routing and reranking arrive in later phases.
+Loads the model once, then routes each query through understanding.query.query()
+— embedding, vector search, cross-encoder reranking — and prints the top 10.
 """
 
 import sys
 from pathlib import Path
 
-# Ensure project root is on sys.path when running as a script
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
-def _print_results(results, query: str) -> None:
+def _print_response(response, query: str) -> None:
+    from understanding.query import QueryResponse
+
     print(f'\nQuery: "{query}"')
     print("-" * 60)
-    for rank, r in enumerate(results, 1):
-        print(f"  {rank:2}. {r.record.word:<20} [{r.record.pos}]  score={r.score:.4f}")
-        # wrap definition at 70 chars for readability
-        defn = r.record.definition
-        if len(defn) > 70:
-            defn = defn[:67] + "..."
-        print(f"      {defn}")
+    for group in response.groups:
+        results = group.results
+        for rank, r in enumerate(results, 1):
+            print(f"  {rank:2}. {r.word:<20} [{r.pos}]  score={r.score:.4f}")
+            defn = r.definition
+            if len(defn) > 70:
+                defn = defn[:67] + "..."
+            print(f"      {defn}")
     print()
 
 
 def main() -> None:
-    print("Loading index...", flush=True)
-    from index.engine import load, search
-    load()
-
-    from embedding.embedder import embed
+    print("Loading models...", flush=True)
+    from understanding.query import query
 
     args = sys.argv[1:]
     if args:
-        query = " ".join(args)
-        vec = embed([query])[0]
-        results = search(vec, k=10)
-        _print_results(results, query)
+        user_input = " ".join(args)
+        response = query(user_input)
+        _print_response(response, user_input)
     else:
         print("Reverse Dictionary — enter a description to find the word.")
         print("(Ctrl-C or empty line to quit)\n")
         while True:
             try:
-                query = input("Description: ").strip()
+                user_input = input("Description: ").strip()
             except (KeyboardInterrupt, EOFError):
                 print()
                 break
-            if not query:
+            if not user_input:
                 break
-            vec = embed([query])[0]
-            results = search(vec, k=10)
-            _print_results(results, query)
+            response = query(user_input)
+            _print_response(response, user_input)
 
 
 if __name__ == "__main__":
