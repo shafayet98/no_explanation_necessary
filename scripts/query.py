@@ -13,7 +13,11 @@ Loads the model once, then routes each query through understanding.query.query()
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT))
+
+from dotenv import load_dotenv
+load_dotenv(ROOT / ".env")
 
 
 def _print_response(response, query: str) -> None:

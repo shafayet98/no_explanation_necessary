@@ -19,6 +19,9 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
+from dotenv import load_dotenv
+load_dotenv(ROOT / ".env")
+
 from understanding.query import query as understanding_query
 
 TEST_CASES_PATH = ROOT / "eval" / "test_cases.jsonl"
